@@ -1,0 +1,10 @@
+{
+    "pythonPath":[
+        "{rootPath}/pugmoudle/mayamoudles/pugmodules/config",
+        "{rootPath}/pugmoudle/globalpythonmodule",
+        "{rootPath}"
+    ],
+    "globalModulePath":[
+        "{rootPath}"
+    ]
+}
