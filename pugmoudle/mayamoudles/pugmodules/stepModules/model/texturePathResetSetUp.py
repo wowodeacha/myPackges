@@ -1,6 +1,6 @@
 # coding=utf-8
 # Author : yangjie
-# data: 20170706
+# data:
 # version: 0.001
 
 
@@ -9,12 +9,12 @@ from pymel import versions
 import maya.OpenMayaUI as apiUI
 from Qt import QtWidgets, QtCore
 import shutil
-import sys
+
 import os
+import texturePathResetUI
+import customProgress
 
-import PicPathOut
-
-reload(PicPathOut)
+reload(customProgress)
 
 version = str(versions.current())
 iv = int(version[0:4])
@@ -34,12 +34,13 @@ def getMayaWindow():
             return shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 
 
-class PicPathOutSet(QtWidgets.QDialog, PicPathOut.Ui_sec_Follice_Form):
+class PicPathOutSet(QtWidgets.QDialog, texturePathResetUI.Ui_texturePathReset):
     def __init__(self, parent=getMayaWindow()):
         super(PicPathOutSet, self).__init__(parent)
-        self.close_duplicateWindow(parent)
 
         self.setupUi(self)
+        self.setObjectName("texturePathResetWin")
+        self.close_duplicateWindow(parent)
 
         self.languageSet()
         self.signal_init()
@@ -47,6 +48,7 @@ class PicPathOutSet(QtWidgets.QDialog, PicPathOut.Ui_sec_Follice_Form):
 
     # close double window 关闭重复窗口
     def close_duplicateWindow(self, parent):
+        print self.objectName()
         for widget in parent.findChildren(QtWidgets.QDialog):
             if widget is not self:
                 if widget.objectName() == self.objectName():
@@ -54,15 +56,15 @@ class PicPathOutSet(QtWidgets.QDialog, PicPathOut.Ui_sec_Follice_Form):
 
     # button text set 按键文字设置
     def languageSet(self):
-        self.loadPC_pushButton.setText(u"导入")
-        self.MergePC_pushButton.setText(u"合并")
-        self.MergePC_pushButton.hide()
-        self.exportPC_pushButton.setText(u"导出")
+        self.loadPC_pushButton.setText(u"导入材质列表(import)")
+
+        self.exportPC_pushButton.setText(u"导出到目标文件(export)")
 
     # signal init 信号初始化
     def signal_init(self):
         self.loadPC_pushButton.clicked.connect(lambda: self.texFile_loadList())
-        self.exportPC_pushButton.clicked.connect(lambda: self.exportFile_loadList())
+        self.exportPC_pushButton.clicked.connect(
+            lambda: self.exportFile_loadList())
 
     # load shaderNode to ui导入场景的材质节点
     def texFile_loadList(self):
@@ -83,26 +85,42 @@ class PicPathOutSet(QtWidgets.QDialog, PicPathOut.Ui_sec_Follice_Form):
 
     # 导出场景中材质节点
     def exportFile_loadList(self):
-        file_path_dig = QtWidgets.QFileDialog.getExistingDirectory(parent=self, caption="Chose_Path")
+        file_path_dig = QtWidgets.QFileDialog.getExistingDirectory(parent=self,
+                                                                   caption="Chose_Path")
+        if not file_path_dig:
+            return
         listWidget = self.pic_listWidget
         items = []
         # print listWidget.count()
+        copyProgressUI = customProgress.Progress(
+            progressDic={"objectName": "textureName",
+                         "title": "copy progress...",
+                         "displayType": "copy progress...",
+                         "num": listWidget.count()}, parent=getMayaWindow())
+        copyProgressUI.show()
+
         for index in xrange(listWidget.count()):
+
             curItem = str(listWidget.item(index).text())
             itemPN = pm.PyNode(curItem)
             AttrName = itemPN.fileTextureName
             AttrGet = AttrName.get()
             file_name = os.path.split(AttrGet)[-1]
-            curPath = file_path_dig + "\\" + file_name
-            if os.path.exists(AttrGet) and os.path.abspath(AttrGet) != os.path.abspath(curPath):
-                print "why you copy here"
+            #
+            curPath = os.path.join(file_path_dig, file_name)
+            if os.path.exists(AttrGet) and os.path.abspath(
+                    AttrGet) != os.path.abspath(curPath):
                 shutil.copy(AttrGet, file_path_dig)
 
                 AttrSet = AttrName.set(curPath)
-                print curPath, "copyed"
+
                 items.append(listWidget.item(index).text())
             else:
                 if os.path.abspath(AttrGet) == os.path.abspath(curPath):
                     print "same file do not copy"
                 pass
-                # print items
+
+            copyProgressUI.progressBar.setValue(index)
+            QtWidgets.QApplication.processEvents()
+
+        copyProgressUI.close()

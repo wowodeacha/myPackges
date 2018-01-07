@@ -1,10 +1,12 @@
 {
     "pythonPath":[
         "{rootPath}/pugmoudle/mayamoudles/pugmodules/config",
-        "{rootPath}/pugmoudle/globalpythonmodule",
-        "{rootPath}"
+        "{rootPath}/pugmoudle/mayamoudles/pugmodules/stepModules/model",
+        "{rootPath}/pugmoudle/mayamoudles/pugmodules/stepModules/model",
+        "{rootPath}/pugmoudle/mayamoudles/pugmodules/globalMoudles"
     ],
     "globalModulePath":[
-        "{rootPath}"
+        "{rootPath}/pugmoudle/globalpythonmodule/Qt",
+        "{rootPath}/pugmoudle/globalpythonmodule/globalselfmodule"
     ]
 }

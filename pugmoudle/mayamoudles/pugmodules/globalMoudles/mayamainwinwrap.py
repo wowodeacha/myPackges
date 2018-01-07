@@ -16,3 +16,5 @@ def getMayaWindow(*args, **kw):
         except:
             return shiboken2.wrapInstance(long(ptr), QtWidgets.QWidget)
 
+
+

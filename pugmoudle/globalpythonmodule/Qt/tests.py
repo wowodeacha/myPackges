@@ -1,12 +1,12 @@
 """Tests that run once"""
+import contextlib
+import imp
 import io
 import os
-import sys
-import imp
 import shutil
-import tempfile
 import subprocess
-import contextlib
+import sys
+import tempfile
 
 try:
     from StringIO import StringIO

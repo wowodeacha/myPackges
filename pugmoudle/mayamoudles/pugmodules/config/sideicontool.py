@@ -11,7 +11,7 @@ def side_icon_TOOL():
         cmds.deleteUI("toolManager")
 
     cmds.iconTextButton("toolManager", image1="mayaTool.png", p=par_form,
-                        c='')
+                        c='import toolmanageui ;reload(toolmanageui);tool_win = toolmanageui.ToolManageUI() ;tool_win.show()')
 
 
 side_icon_TOOL()
